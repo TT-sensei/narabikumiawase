@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>考え方ラボ｜ならべる？えらぶ？</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#F4F0FC;
+    --bg2:#EAF6FF;
+    --ink:#333150;
+    --ink-soft:#6b6890;
+    --arrange:#5B7FDE;
+    --arrange-soft:#E7ECFB;
+    --arrange-deep:#3F5BB0;
+    --combo:#FF7FA0;
+    --combo-soft:#FFE8EF;
+    --combo-deep:#E0567C;
+    --mint:#4BC7A3;
+    --mint-soft:#DFF7EF;
+    --sun:#FFBE3D;
+    --card:#FFFFFF;
+    --line:#E4E0F2;
+    --shadow:0 10px 28px rgba(70,58,140,.14);
+    --shadow-sm:0 4px 12px rgba(70,58,140,.10);
+    --radius:24px;
+    --radius-sm:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'M PLUS Rounded 1c', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(120,105,200,.09) 1.5px, transparent 1.5px) 0 0/26px 26px,
+      linear-gradient(160deg, var(--bg1), var(--bg2) 60%);
+    min-height:100%;
+    overscroll-behavior:none;
+    user-select:none;
+  }
+  h1,h2,h3,.display{font-family:'Kosugi Maru', sans-serif;}
+  #app{max-width:720px; margin:0 auto; padding:18px 16px 48px; min-height:100vh;}
+  button{font-family:inherit; border:none; cursor:pointer; -webkit-appearance:none; touch-action:manipulation;}
+  .row{display:flex; gap:10px; flex-wrap:wrap;}
+  .center{text-align:center;}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .brand{display:flex; align-items:center; gap:8px;}
+  .brand .logo{font-size:26px;}
+  .brand .name{font-size:15px; font-weight:700; color:var(--ink);}
+  .icon-btn{
+    width:42px; height:42px; border-radius:14px; background:var(--card);
+    box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center;
+    font-size:18px; color:var(--ink-soft);
+  }
+  .icon-btn.active{color:var(--arrange);}
+
+  /* ---------- home ---------- */
+  .hero{
+    background:linear-gradient(135deg, #fff, #F7F4FF);
+    border-radius:28px; padding:26px 22px 22px; box-shadow:var(--shadow);
+    position:relative; overflow:hidden; margin-bottom:20px;
+  }
+  .hero::after{
+    content:""; position:absolute; right:-40px; top:-40px; width:150px; height:150px;
+    background:radial-gradient(circle, rgba(91,127,222,.14), transparent 70%);
+    border-radius:50%;
+  }
+  .hero h1{font-size:24px; margin:0 0 6px; line-height:1.35;}
+  .hero p{margin:0 0 16px; color:var(--ink-soft); font-size:14px; line-height:1.7;}
+  .demo-row{display:flex; gap:10px;}
+  .demo-card{
+    flex:1; border-radius:18px; padding:14px 10px; text-align:center;
+    font-size:13px; font-weight:700;
+  }
+  .demo-card.a{background:var(--arrange-soft); color:var(--arrange-deep);}
+  .demo-card.c{background:var(--combo-soft); color:var(--combo-deep);}
+  .demo-anim{height:34px; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:6px;}
+  .dot{width:10px; height:10px; border-radius:50%;}
+  .demo-card.a .dot{background:var(--arrange); animation:shuffle 2.4s infinite ease-in-out;}
+  .demo-card.a .dot:nth-child(2){animation-delay:.15s;}
+  .demo-card.a .dot:nth-child(3){animation-delay:.3s;}
+  @keyframes shuffle{
+    0%,100%{transform:translateY(0);} 30%{transform:translateY(-8px);} 60%{transform:translateY(2px);}
+  }
+  .demo-card.c .dot{background:var(--combo);}
+  .demo-card.c .demo-anim{animation:pulse 2.4s infinite ease-in-out;}
+  @keyframes pulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.12);}}
+
+  .rank-strip{
+    display:flex; align-items:center; gap:10px; background:var(--card); border-radius:18px;
+    padding:12px 16px; box-shadow:var(--shadow-sm); margin-bottom:18px;
+  }
+  .rank-strip .em{font-size:26px;}
+  .rank-strip .txt{flex:1;}
+  .rank-strip .label{font-size:11px; color:var(--ink-soft); font-weight:700; letter-spacing:.05em;}
+  .rank-strip .title{font-size:15px; font-weight:700;}
+  .rank-strip .count{font-size:12px; color:var(--ink-soft);}
+
+  .level-card{
+    display:flex; align-items:center; gap:14px; background:var(--card); border-radius:22px;
+    padding:16px; box-shadow:var(--shadow-sm); margin-bottom:12px; text-align:left; width:100%;
+    border:2px solid transparent; transition:transform .15s ease;
+  }
+  .level-card:active{transform:scale(.98);}
+  .level-card .num{
+    width:48px; height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:18px; flex-shrink:0; font-family:'Kosugi Maru',sans-serif;
+  }
+  .lv1 .num{background:var(--mint-soft); color:#2b9d7c;}
+  .lv2 .num{background:var(--arrange-soft); color:var(--arrange-deep);}
+  .lv3 .num{background:var(--combo-soft); color:var(--combo-deep);}
+  .level-card .body{flex:1;}
+  .level-card .ttl{font-weight:700; font-size:15px; margin-bottom:2px;}
+  .level-card .sub{font-size:12px; color:var(--ink-soft);}
+  .level-card .stars{font-size:12px; color:var(--sun); margin-top:4px; letter-spacing:1px;}
+  .level-card .go{font-size:20px; color:var(--ink-soft);}
+
+  /* ---------- question screen ---------- */
+  .q-header{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .back-btn{
+    width:38px; height:38px; border-radius:12px; background:var(--card); box-shadow:var(--shadow-sm);
+    display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink-soft);
+  }
+  .progress-wrap{flex:1;}
+  .progress-track{height:10px; border-radius:6px; background:#E7E2F5; overflow:hidden;}
+  .progress-fill{height:100%; border-radius:6px; background:linear-gradient(90deg, var(--arrange), var(--combo)); transition:width .35s ease;}
+  .progress-txt{font-size:11px; color:var(--ink-soft); margin-top:4px;}
+
+  .q-card{
+    background:var(--card); border-radius:26px; padding:22px 20px; box-shadow:var(--shadow); margin-bottom:16px;
+  }
+  .q-eyebrow{font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em; margin-bottom:8px;}
+  .q-text{font-size:19px; line-height:1.9; font-weight:500;}
+  .q-text mark.ev{ padding:0 2px; font-weight:700; border-radius:3px; animation:pop .3s ease; }
+  .q-text mark.ev-arrange{ background:linear-gradient(180deg, transparent 55%, var(--arrange-soft) 55%); color:var(--arrange-deep); }
+  .q-text mark.ev-combo{ background:linear-gradient(180deg, transparent 55%, var(--combo-soft) 55%); color:var(--combo-deep); }
+  @keyframes pop{from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);}}
+
+  .judge-row{display:flex; gap:12px; margin-top:18px;}
+  .judge-btn{
+    flex:1; border-radius:20px; padding:18px 8px; text-align:center; font-weight:700; font-size:15px;
+    box-shadow:var(--shadow-sm); transition:transform .12s ease, box-shadow .12s ease; line-height:1.5;
+    min-height:78px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  }
+  .judge-btn:active{transform:scale(.96);}
+  .judge-btn.arrange{background:var(--arrange-soft); color:var(--arrange-deep); border:2px solid transparent;}
+  .judge-btn.combo{background:var(--combo-soft); color:var(--combo-deep); border:2px solid transparent;}
+  .judge-btn .em{font-size:22px;}
+  .judge-btn .sm{font-size:11px; font-weight:500; opacity:.8;}
+  .judge-btn[disabled]{opacity:.45; pointer-events:none;}
+  .judge-btn.chosen.right{border-color:var(--mint); box-shadow:0 0 0 4px rgba(75,199,163,.18);}
+  .judge-btn.chosen.wrong{border-color:#F2A5B8; box-shadow:0 0 0 4px rgba(255,127,160,.14);}
+  .judge-btn.reveal-correct{border-color:var(--mint);}
+
+  .feedback{
+    margin-top:16px; border-radius:18px; padding:14px 16px; font-size:14px; line-height:1.7;
+    animation:slideIn .3s ease;
+  }
+  @keyframes slideIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .feedback.ok{background:var(--mint-soft); color:#2b8a6d;}
+  .feedback.ng{background:#FFF3E0; color:#B5762A;}
+  .feedback.trap{background:#FFF7DE; color:#8a6d1f;}
+  .feedback .stamp{font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:6px;}
+
+  .meta-row{margin-top:14px;}
+  .meta-label{font-size:11px; color:var(--ink-soft); font-weight:700; margin-bottom:8px;}
+  .meta-chip{
+    background:#F5F2FD; border-radius:14px; padding:9px 12px; font-size:12.5px; color:var(--ink-soft);
+    font-weight:500;
+  }
+  .meta-chip.picked{background:var(--arrange); color:#fff;}
+
+  .btn-primary{
+    display:block; width:100%; margin-top:16px; padding:16px; border-radius:18px;
+    background:linear-gradient(135deg, var(--arrange), #7C63E8); color:#fff; font-weight:700; font-size:15px;
+    box-shadow:0 8px 18px rgba(91,127,222,.35);
+  }
+  .btn-primary:active{transform:scale(.98);}
+  .btn-ghost{
+    display:block; width:100%; margin-top:10px; padding:13px; border-radius:16px;
+    background:transparent; color:var(--ink-soft); font-weight:600; font-size:13px; border:2px dashed var(--line);
+  }
+
+  /* ---------- engine (level2 lab) ---------- */
+  .lab-card{
+    background:linear-gradient(180deg, #FDFCFF, #F7F5FF); border:2px dashed #D9D0F5; border-radius:22px;
+    padding:18px; margin-top:16px;
+  }
+  .lab-title{font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:10px; letter-spacing:.04em;}
+  .pool-label{font-size:12.5px; color:var(--ink-soft); font-weight:700; margin:6px 0 10px;}
+  .expr-reveal{
+    font-family:'Kosugi Maru',sans-serif; font-size:19px; text-align:center; padding:16px 8px;
+    color:var(--arrange-deep); font-weight:700; animation:pop .4s ease;
+  }
+  .expr-reveal.minor{
+    font-family:'M PLUS Rounded 1c', sans-serif; font-size:14px; padding:8px 4px; text-align:left;
+    color:var(--ink-soft); font-weight:600; animation:none;
+  }
+
+  /* ---------- real branching tree diagrams ---------- */
+  .tree-wrap{overflow-x:auto; overflow-y:visible; padding:8px 4px 18px; -webkit-overflow-scrolling:touch;}
+  .tree{display:flex; align-items:center; width:max-content;}
+  .tree-root-dot{width:10px; height:10px; border-radius:50%; background:#C9BEF0; margin-right:14px; flex-shrink:0;}
+  ul.lvl{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; justify-content:center; position:relative;}
+  ul.lvl.nested li{position:relative; display:flex; align-items:center; padding:5px 0 5px 28px;}
+  ul.lvl.nested li::before{content:''; position:absolute; top:50%; left:0; width:28px; height:2px; background:#D6CFF2;}
+  ul.lvl.nested li:not(:first-child)::after{content:''; position:absolute; left:0; top:-50%; height:100%; width:2px; background:#D6CFF2;}
+  .tree-node-box{
+    min-width:44px; height:44px; padding:0 10px; border-radius:13px; background:#fff; border:2px solid var(--arrange-soft);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14.5px; color:var(--arrange-deep);
+    box-shadow:var(--shadow-sm); flex-shrink:0; position:relative; z-index:2; white-space:nowrap; animation:pop .25s ease;
+  }
+  .tree-node-box.picked{background:var(--arrange); color:#fff; border-color:var(--arrange);}
+  .tree-node-box.leaf{background:var(--combo-soft); color:var(--combo-deep); border-color:var(--combo-soft);}
+  .tree-node-box.pick-leaf{background:#fff; border-style:dashed; border-color:var(--arrange); color:var(--arrange-deep); cursor:pointer;}
+  .tree-node-box.pick-leaf:active{transform:scale(.94);}
+  .tree-node-box .badge{
+    position:absolute; top:-11px; right:-12px; background:var(--sun); color:#7a4f00; font-size:9.5px; font-weight:800;
+    padding:2px 6px; border-radius:10px; box-shadow:var(--shadow-sm); white-space:nowrap;
+  }
+  .omake-label{font-size:11px; font-weight:700; color:#B6ACD9; letter-spacing:.04em; margin:16px 0 4px;}
+
+  .hint-steps{margin-top:12px;}
+  .hint-step{
+    background:#fff; border-radius:14px; padding:12px 14px; font-size:13.5px; line-height:1.7;
+    margin-bottom:8px; box-shadow:var(--shadow-sm); animation:slideIn .3s ease;
+  }
+  .hint-step b{color:var(--arrange-deep);}
+
+  /* ---------- level3 numberpad ---------- */
+  .answer-display{
+    background:#fff; border-radius:18px; padding:18px; text-align:center; font-size:30px; font-weight:800;
+    color:var(--ink); box-shadow:var(--shadow-sm); margin:14px 0; min-height:66px; display:flex; align-items:center; justify-content:center;
+    font-family:'Kosugi Maru',sans-serif;
+  }
+  .answer-display .unit{font-size:15px; color:var(--ink-soft); margin-left:6px;}
+  .numpad{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  .num-btn{
+    background:#fff; border-radius:16px; padding:16px 0; font-size:19px; font-weight:700; box-shadow:var(--shadow-sm); color:var(--ink);
+  }
+  .num-btn:active{transform:scale(.95);}
+  .num-btn.wide{grid-column:span 1; background:var(--arrange-soft); color:var(--arrange-deep);}
+  .num-btn.confirm{background:linear-gradient(135deg,var(--mint),#3AAE8E); color:#fff;}
+
+  /* ---------- results ---------- */
+  .result-card{
+    background:var(--card); border-radius:28px; padding:30px 22px; text-align:center; box-shadow:var(--shadow);
+    position:relative; overflow:hidden;
+  }
+  .result-em{font-size:56px; margin-bottom:6px;}
+  .result-title{font-size:20px; font-weight:800; margin-bottom:4px; font-family:'Kosugi Maru',sans-serif;}
+  .result-sub{font-size:13px; color:var(--ink-soft); margin-bottom:16px;}
+  .result-stars{font-size:26px; letter-spacing:4px; color:var(--sun); margin-bottom:10px;}
+  .badge-pill{
+    display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#FFF3D6,#FFE3B0);
+    color:#9A6A0E; padding:8px 16px; border-radius:999px; font-weight:700; font-size:13px; margin-bottom:6px;
+  }
+
+  .confetti-layer{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:99;}
+  .confetti-bit{position:absolute; top:-10px; border-radius:2px; opacity:.9; animation:fall linear forwards;}
+  @keyframes fall{ to{ transform:translateY(110vh) rotate(540deg); opacity:0;} }
+
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:10px 18px; border-radius:999px; font-size:13px; box-shadow:var(--shadow); z-index:150;
+    animation:toastIn .25s ease;
+  }
+  @keyframes toastIn{from{opacity:0; transform:translate(-50%,10px);} to{opacity:1; transform:translate(-50%,0);}}
+
+  footer.credit{text-align:center; font-size:11px; color:#B7B2D6; margin-top:26px;}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="confettiLayer" class="confetti-layer"></div>
+
+<script>
+/* =========================================================
+   考え方ラボ｜ならべる？えらぶ？
+   小6向け 順列・組み合わせ 判断＋体験アプリ
+========================================================= */
+
+/* ---------- Random-question generation ---------- */
+const QUESTIONS_PER_LEVEL = 10;
+
+const POOL_PEOPLE = ["たろう","はなこ","ゆうた","さき","けんじ","みお","そら","ひな","りく","あおい"];
+const POOL_FRUIT  = ["りんご","みかん","バナナ","ぶどう","もも","メロン","いちご","なし"];
+const POOL_COLOR  = ["赤","青","黄","緑","むらさき","オレンジ"];
+const POOL_ANIMAL = ["ネコ","イヌ","ウサギ","パンダ","ゾウ","キリン"];
+const POOL_DIGIT  = ["1","2","3","4","5","6","7","8","9"];
+
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pickOne(arr){ return arr[randInt(0,arr.length-1)]; }
+function pickN(pool, n){ return shuffle(pool).slice(0,n); }
+
+// Shared "why this is tricky" explanations, reused across every template that
+// shares the same underlying misconception — this is the ② common-mistake layer.
+const TRAP_BANK = {
+  'order-word': {reason:"「並ぶ」「じゅんばん」ということばがあるから、じゅんばんが関係あるよ。",
+    trap:"「みんなでいっしょに」というイメージで、じゅんばんは関係ないと思ってしまう子がいるよ。でも「並ぶ」は、だれが何番目かが変わると別の並びになるから、じゅんばんありだよ。"},
+  'role-diff': {reason:"役わりがちがうから、じゅんばんがあるのと同じだよ。",
+    trap:"「2人を選んでいるだけ」に見えて「組み合わせ」だと思いがちだよ。でもリーダーと副リーダーは役わりがちがうから、同じ2人でも「どっちがリーダーか」で別の答えになるよ。"},
+  'rank': {reason:"順位は、じゅんばんそのものだよ。",
+    trap:"「人を選んでいる」ように見えて「組み合わせ」だと思う子が多いよ。でも1位・2位は「だれが何番目か」を決めているから、じゅんばんありの「並べ方」だよ。"},
+  'digit-position': {reason:"位（くらい）が変わると、ちがう数になるよ。",
+    trap:"「カードを選ぶ」ように見えて「組み合わせ」だと思ってしまうことがあるよ。でも百の位・十の位が入れかわると、ぜんぜんちがう数になるから、じゅんばんありだよ。"},
+  'choose-word': {reason:"「選ぶ」だけだから、じゅんばんは関係ないよ。",
+    trap:"「何人か決める」という言い方につられて「並べ方」だと思ってしまう子がいるよ。でも役わりの違いがなければ、だれが選ばれても同じあつかいだから「組み合わせ」だよ。"},
+  'team': {reason:"チームは、だれが何番目とかは関係ないよ。",
+    trap:"「決める」ということばに引っぱられて「並べ方」だと思いやすいよ。でもチームのメンバーはみんな同じ立場だから「組み合わせ」だよ。"},
+  'category': {reason:"種類を選ぶだけで、じゅんばんは関係ないよ。",
+    trap:"「2つ選ぶ」を「1番目・2番目を選ぶ」のように、じゅんいの意味だと思いこんでしまうことがあるよ。でも「どれとどれを選ぶか」だけだから「組み合わせ」だよ。"},
+  'committee': {reason:"委員はみんな同じ役わりだから、じゅんばんは関係ないよ。",
+    trap:"「委員長・副委員長」のように役わりが分かれる場合と混同しやすいよ。今回は同じ「委員」を選ぶだけだから「組み合わせ」だよ。"},
+  'pair': {reason:"ペアは「だれとだれか」だけを考えるよ。",
+    trap:"「AとB」と「BとA」を別のペアだと思って、じゅんばんありで数えてしまう子が多いよ。同じ2人なら1通りと考えるから「組み合わせ」だよ。"},
+};
+
+// ---- Level 1: 見分ける（判断のみ）----
+const LV1_TEMPLATES = [
+  {type:'arrange', trapId:'order-word', build(){
+    const n = randInt(3,5); const items = pickN(POOL_PEOPLE, n);
+    return {text:`${items.join('、')}の${n}人が一列に並びます。`, highlight:['並びます']};
+  }},
+  {type:'arrange', trapId:'role-diff', build(){
+    const n = randInt(3,5); const items = pickN(POOL_PEOPLE, n);
+    return {text:`${items.join('、')}の${n}人の中から、リーダーと副リーダーを決めます。`, highlight:['リーダーと副リーダー']};
+  }},
+  {type:'arrange', trapId:'rank', build(){
+    const n = randInt(3,5); const items = pickN(POOL_PEOPLE, n);
+    const count = randInt(2,3);
+    const label = count===2 ? '1位、2位' : '1位、2位、3位';
+    return {text:`${items.join('、')}の${n}人で、${label}を決めます。`, highlight:[label]};
+  }},
+  {type:'arrange', trapId:'digit-position', build(){
+    const total = randInt(3,4); const items = pickN(POOL_DIGIT, total);
+    const count = total===4 ? pickOne([3,4]) : total;
+    const text = count===total
+      ? `${items.join('、')}のカード${total}まいを並べて${count}けたの数を作ります。`
+      : `${items.join('、')}のカード${total}まいのうち、${count}まいを並べて${count}けたの数を作ります。`;
+    return {text, highlight:['並べて']};
+  }},
+  {type:'arrange', trapId:'order-word', build(){
+    const n = randInt(3,5); const items = pickN(POOL_PEOPLE, n);
+    return {text:`${items.join('、')}が、リレーで走るじゅんばんを決めます。`, highlight:['じゅんばんを決めます']};
+  }},
+  {type:'arrange', trapId:'order-word', build(){
+    const n = randInt(3,5); const items = pickN(POOL_PEOPLE, n);
+    return {text:`写真をとるために、${items.join('、')}の${n}人が横一列に並びます。`, highlight:['並びます']};
+  }},
+  {type:'combo', trapId:'choose-word', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n); const count = randInt(2,3);
+    return {text:`${items.join('、')}の${n}人から${count}人を選びます。`, highlight:['選びます']};
+  }},
+  {type:'combo', trapId:'team', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n); const count = randInt(2,3);
+    return {text:`${items.join('、')}の${n}人から${count}人を選んでチームを作ります。`, highlight:['選んで']};
+  }},
+  {type:'combo', trapId:'category', build(){
+    const pool = pickOne([POOL_FRUIT, POOL_COLOR]); const n = randInt(3,5); const items = pickN(pool, n);
+    return {text:`${items.join('、')}の${n}種類から2種類選びます。`, highlight:['選びます']};
+  }},
+  {type:'combo', trapId:'committee', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n); const count = randInt(2,3);
+    return {text:`${items.join('、')}の${n}人から委員を${count}人選びます。`, highlight:[`委員を${count}人選び`]};
+  }},
+  {type:'combo', trapId:'pair', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n);
+    return {text:`${items.join('、')}の${n}人から2人のペアを作ります。`, highlight:['ペアを作ります']};
+  }},
+  {type:'combo', trapId:'choose-word', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n); const count = randInt(2,3);
+    return {text:`${items.join('、')}の${n}人から、そうじ当番を${count}人選びます。`, highlight:['選びます']};
+  }},
+];
+
+// ---- Level 2: 図で考える（樹形図エンジンにそのまま渡せる形）----
+const LV2_TEMPLATES = [
+  {type:'arrange', build(){
+    const n=3; const items = pickN(pickOne([POOL_PEOPLE,POOL_FRUIT,POOL_ANIMAL]), n);
+    return {text:`${items.join('、')}の${n}つを並べます。何通り？`, entities:items, k:n, reason:'1つずつ、じゅんばんを決めていくよ。'};
+  }},
+  {type:'arrange', build(){
+    const n=4, k=2; const items = pickN(pickOne([POOL_PEOPLE,POOL_ANIMAL]), n);
+    return {text:`${items.join('、')}の${n}つから${k}つを選んで並べます。何通り？`, entities:items, k, reason:'1つ目、2つ目のじゅんに決めていくよ。'};
+  }},
+  {type:'arrange', build(){
+    const k=2;
+    return {text:`コインを${k}回投げます。出方は何通り？`, entities:['表','裏'], k, repeat:true, reason:'1回ごとに、表か裏の2通りだよ。'};
+  }},
+  {type:'arrange', build(){
+    const k=3;
+    return {text:`コインを${k}回投げます。出方は何通り？`, entities:['表','裏'], k, repeat:true, reason:'1回ごとに2通り。それが続くよ。'};
+  }},
+  {type:'arrange', build(){
+    const n=4; const items = pickN(pickOne([POOL_PEOPLE,POOL_ANIMAL]), n);
+    const fixed = items[0]; const rest = items.slice(1);
+    return {text:`${items.join('、')}の${n}人を並べるとき、${fixed}が先頭の並びは何通り？`, entities:rest, k:rest.length, fixedFirst:fixed,
+      reason:`${fixed}は先頭で決まりだから、残り${rest.length}人だけ考えればいいね。`};
+  }},
+  {type:'arrange', build(){
+    const items = pickN(POOL_PEOPLE, 4);
+    const [a,b,...rest] = items;
+    const bundle = `${a}・${b}`;
+    const entities = [bundle, ...rest];
+    return {text:`${items.join('、')}の4人で、${a}と${b}がとなり合う並びは何通り？`, entities, k:entities.length,
+      postMultiply:{factor:2, label:`「${bundle}」の中でも、${a}・${b}と${b}・${a}の2通りの並びがあるね`},
+      reason:`${a}と${b}を「1つのかたまり」${bundle}と考えると、のこりは${entities.length}つを並べる問題になるよ。`};
+  }},
+  {type:'combo', build(){
+    const n = randInt(4,6); const items = pickN(pickOne([POOL_PEOPLE,POOL_FRUIT,POOL_COLOR,POOL_ANIMAL]), n);
+    return {text:`${items.join('、')}の${n}つから2つ選びます。何通り？`, entities:items, k:2, reason:'組み合わせを全部さがしてみよう。'};
+  }},
+  {type:'combo', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n);
+    return {text:`${items.join('、')}の${n}人から2人のペアを作るとき、何通り？`, entities:items, k:2, reason:'ペアは「だれとだれか」だけを考えるよ。'};
+  }},
+  {type:'combo', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n);
+    return {text:`${items.join('、')}の${n}人から委員を2人選びます。何通り？`, entities:items, k:2, reason:'委員はみんな同じ役わりだから、選ぶだけを考えよう。'};
+  }},
+  {type:'combo', build(){
+    const pool = pickOne([POOL_FRUIT,POOL_COLOR]); const n = randInt(4,5); const items = pickN(pool, n);
+    return {text:`${items.join('、')}の${n}種類から2種類選びます。何通り？`, entities:items, k:2, reason:'種類を選ぶだけで、じゅんばんは関係ないよ。'};
+  }},
+];
+
+// ---- Level 3: 式にする（数値の答えだけでOK）----
+const LV3_TEMPLATES = [
+  {type:'arrange', build(){
+    const n=4; const items = pickN(pickOne([POOL_PEOPLE,POOL_ANIMAL]), n);
+    const ans = factorial(n);
+    return {text:`${items.join('、')}の${n}人を並べるとき、全部で何通り？`, ans, expr:Array.from({length:n},(_,i)=>n-i).join('×')};
+  }},
+  {type:'arrange', build(){
+    const n = randInt(4,6), k = randInt(2,3); const items = pickN(POOL_PEOPLE, n);
+    const ans = nPk(n,k);
+    return {text:`${items.join('、')}の${n}人から${k}人選んで、じゅんばんに並べます。何通り？`, ans, expr:Array.from({length:k},(_,i)=>n-i).join('×')};
+  }},
+  {type:'combo', build(){
+    const n = randInt(5,7), k = randInt(2,3); const items = pickN(POOL_PEOPLE, n);
+    const ans = nCk(n,k);
+    const top = Array.from({length:k},(_,i)=>n-i).join('×');
+    const bot = Array.from({length:k},(_,i)=>i+1).join('×');
+    return {text:`${items.join('、')}の${n}人から${k}人選びます。何通り？`, ans, expr:`(${top})÷(${bot})`};
+  }},
+  {type:'arrange', build(){
+    const k = randInt(3,4); const ans = Math.pow(2,k);
+    return {text:`コインを${k}回投げるとき、出方は何通り？`, ans, expr:Array.from({length:k},()=>2).join('×')};
+  }},
+  {type:'arrange', build(){
+    const n = randInt(4,6); const items = pickN(POOL_PEOPLE, n); const ans = nPk(n,2);
+    return {text:`${items.join('、')}の${n}人で委員長と副委員長を選ぶとき、何通り？`, ans, expr:`${n}×${n-1}`};
+  }},
+  {type:'arrange', build(){
+    const items = pickN(POOL_PEOPLE, 4); const [a,b,...rest] = items;
+    const sub = factorial(3); const ans = sub*2;
+    return {text:`${items.join('、')}の4人で、${a}と${b}がとなり合う並びは何通り？`, ans, special:true,
+      hintSteps:[`${a}と${b}を「1つのかたまり」と考えるよ。`,
+        `かたまりと${rest.join('、')}の3つを並べる → <b>${sub}通り</b>`,
+        `かたまりの中は${a}・${b}と${b}・${a}の2通り → <b>${sub}×2 = ${ans}通り</b>`]};
+  }},
+  {type:'arrange', build(){
+    const n = randInt(4,5); const items = pickN(POOL_PEOPLE, n); const fixed = items[0];
+    const ans = factorial(n-1);
+    return {text:`${items.join('、')}の${n}人を並べるとき、${fixed}が先頭の並びは何通り？`, ans, expr:Array.from({length:n-1},(_,i)=>n-1-i).join('×')};
+  }},
+  {type:'arrange', build(){
+    let digits;
+    do{ digits = pickN(POOL_DIGIT, 4); } while(digits.filter(d=>+d%2===0).length<2);
+    const evenDigits = digits.filter(d=>+d%2===0);
+    const rest = 3, restK = 2;
+    const restCount = nPk(rest, restK);
+    const ans = evenDigits.length*restCount;
+    return {text:`${digits.join('、')}のカードで3けたの偶数を作ります。何通り？`, ans, special:true,
+      hintSteps:[`一の位は「${evenDigits.join('」か「')}」の <b>${evenDigits.length}通り</b>。`,
+        `のこりの2つの位には、のこった3まいから2まい選んで並べる → <b>${restCount}通り</b>`,
+        `${evenDigits.length} × ${restCount} = <b>${ans}通り</b>`]};
+  }},
+];
+
+function generateLevel1Set(){
+  const arrangeT = shuffle(LV1_TEMPLATES.filter(t=>t.type==='arrange')).slice(0,5);
+  const comboT = shuffle(LV1_TEMPLATES.filter(t=>t.type==='combo')).slice(0,5);
+  return shuffle([...arrangeT, ...comboT]).map(t=>{
+    const {text, highlight} = t.build();
+    const bank = TRAP_BANK[t.trapId];
+    return {level:1, type:t.type, text, highlight, reason:bank.reason, trap:bank.trap};
+  });
+}
+function generateLevel2Set(){
+  const arrangeT = shuffle(LV2_TEMPLATES.filter(t=>t.type==='arrange')).slice(0,5);
+  const comboPool = LV2_TEMPLATES.filter(t=>t.type==='combo');
+  const comboT = []; for(let i=0;i<5;i++) comboT.push(comboPool[i%comboPool.length]);
+  return shuffle([...arrangeT, ...shuffle(comboT)]).map(t=>({level:2, ...t.build(), type:t.type}));
+}
+function generateLevel3Set(){
+  const pool = LV3_TEMPLATES;
+  const picks = []; for(let i=0;i<QUESTIONS_PER_LEVEL;i++) picks.push(pool[i%pool.length]);
+  return shuffle(picks).map(t=>({level:3, ...t.build(), type:t.type}));
+}
+function generateLevelSet(lv){
+  if(lv===1) return generateLevel1Set();
+  if(lv===2) return generateLevel2Set();
+  return generateLevel3Set();
+}
+
+const LEVEL_META = {
+  1:{title:"見分ける", sub:"ならべ方？組み合わせ？を判断しよう", emoji:"🔍", cls:"lv1"},
+  2:{title:"図で考える", sub:"実際に手を動かして体験しよう", emoji:"🧩", cls:"lv2"},
+  3:{title:"式にする", sub:"考え方を式と答えにしよう", emoji:"✏️", cls:"lv3"},
+};
+
+const TIERS = [
+  {min:0, name:"けんきゅういん見習い", emoji:"🌱"},
+  {min:3, name:"かんさつ隊員", emoji:"🔍"},
+  {min:6, name:"くらべ上手", emoji:"⚖️"},
+  {min:9, name:"判断ビギナー", emoji:"🎯"},
+  {min:12, name:"組み合わせハンター", emoji:"🧩"},
+  {min:15, name:"ならべ職人", emoji:"🧵"},
+  {min:18, name:"樹形図たんけん家", emoji:"🌳"},
+  {min:21, name:"式づくり忍者", emoji:"🥷"},
+  {min:24, name:"論理エキスパート", emoji:"💡"},
+  {min:27, name:"考え方マスター候補", emoji:"🏅"},
+  {min:30, name:"究極の判断力マスター", emoji:"👑"},
+];
+
+/* ---------- Storage ---------- */
+const STORAGE_KEY = "kangaekata_lab_progress_v1";
+function defaultProgress(){
+  return {levels:{1:{best:0},2:{best:0},3:{best:0}}, sound:true};
+}
+function loadProgress(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(!raw) return defaultProgress();
+    const d = defaultProgress();
+    return {...d, ...raw, levels:{...d.levels, ...(raw.levels||{})}};
+  }catch(e){ return defaultProgress(); }
+}
+function saveProgress(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(PROGRESS)); }catch(e){} }
+let PROGRESS = loadProgress();
+
+function totalBest(){ return [1,2,3].reduce((s,l)=>s+(PROGRESS.levels[l].best||0),0); }
+function currentTier(){
+  let t = TIERS[0];
+  TIERS.forEach(x=>{ if(totalBest()>=x.min) t=x; });
+  return t;
+}
+
+/* ---------- Sound (Web Audio) ---------- */
+let actx = null;
+function ensureAudio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx && actx.state==='suspended'){ actx.resume(); } }
+function tone(freq, start, dur, type='sine', gain=0.16){
+  if(!PROGRESS.sound || !actx) return;
+  const t0 = actx.currentTime + start;
+  const osc = actx.createOscillator();
+  const g = actx.createGain();
+  osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(gain, t0+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  osc.connect(g); g.connect(actx.destination);
+  osc.start(t0); osc.stop(t0+dur+0.02);
+}
+function playTap(){ ensureAudio(); tone(720,0,0.08,'sine',0.10); }
+function playCorrect(){ ensureAudio(); tone(523,0,0.14,'triangle'); tone(659,0.09,0.14,'triangle'); tone(784,0.18,0.22,'triangle'); }
+function playWrong(){ ensureAudio(); tone(392,0,0.16,'sine',0.12); tone(330,0.12,0.22,'sine',0.10); }
+function playClear(){ ensureAudio(); [523,659,784,1046].forEach((f,i)=>tone(f,i*0.11,0.2,'triangle')); }
+
+/* ---------- Confetti ---------- */
+function fireConfetti(n=46){
+  const layer = document.getElementById('confettiLayer');
+  const colors = ['#5B7FDE','#FF7FA0','#FFBE3D','#4BC7A3','#B08EF0'];
+  for(let i=0;i<n;i++){
+    const bit = document.createElement('div');
+    bit.className='confetti-bit';
+    const size = 6+Math.random()*7;
+    bit.style.width = size+'px'; bit.style.height=(size*0.5+4)+'px';
+    bit.style.left = (Math.random()*100)+'vw';
+    bit.style.background = colors[Math.floor(Math.random()*colors.length)];
+    const dur = 2.2+Math.random()*1.6;
+    bit.style.animationDuration = dur+'s';
+    bit.style.animationDelay = (Math.random()*0.4)+'s';
+    layer.appendChild(bit);
+    setTimeout(()=>bit.remove(), (dur+0.5)*1000);
+  }
+}
+
+/* ---------- DOM helpers ---------- */
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; }
+function factorial(n){ let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+function nPk(n,k){ let r=1; for(let i=0;i<k;i++) r*= (n-i); return r; }
+function nCk(n,k){ return Math.round(nPk(n,k)/factorial(k)); }
+
+/* ---------- App state ---------- */
+const app = document.getElementById('app');
+const STATE = { screen:'home', level:null, idx:0, sessionCorrect:0, answered:false, lastCorrect:null, answerBuffer:'', activeQuestions:[] };
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function currentQuestion(){ return STATE.activeQuestions[STATE.idx]; }
+
+/* ---------- Router ---------- */
+function render(){
+  if(STATE.screen==='home') renderHome();
+  else if(STATE.screen==='question') renderQuestion();
+  else if(STATE.screen==='result') renderResult();
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const tier = currentTier();
+  app.innerHTML = '';
+
+  const topbar = el('div','topbar');
+  topbar.innerHTML = `<div class="brand"><span class="logo">🧭</span><span class="name">考え方ラボ</span></div>`;
+  const soundBtn = el('button','icon-btn'+(PROGRESS.sound?' active':''), PROGRESS.sound? '🔊':'🔈');
+  soundBtn.onclick=()=>{ ensureAudio(); PROGRESS.sound=!PROGRESS.sound; saveProgress(); if(PROGRESS.sound) playTap(); renderHome(); };
+  topbar.appendChild(soundBtn);
+  app.appendChild(topbar);
+
+  const hero = el('div','hero');
+  hero.innerHTML = `
+    <h1>ならべる？<br>それとも　えらぶ？</h1>
+    <p>じゅんばん が あると「ならべ方」、じゅんばん が なければ「組み合わせ」。<br>もんだいを読んで、判断して、体験して、たしかめよう。</p>
+    <div class="demo-row">
+      <div class="demo-card a"><div class="demo-anim"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>ならべ方<br><span style="font-weight:400;font-size:11px;">じゅんばん あり</span></div>
+      <div class="demo-card c"><div class="demo-anim"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>組み合わせ<br><span style="font-weight:400;font-size:11px;">じゅんばん なし</span></div>
+    </div>`;
+  app.appendChild(hero);
+
+  const rank = el('div','rank-strip');
+  rank.innerHTML = `<span class="em">${tier.emoji}</span>
+    <div class="txt">
+      <div class="label">げんざいの かいきゅう</div>
+      <div class="title">${tier.name}</div>
+      <div class="count">せいかい合計 ${totalBest()} / 30</div>
+    </div>`;
+  app.appendChild(rank);
+
+  [1,2,3].forEach(lv=>{
+    const meta = LEVEL_META[lv];
+    const best = PROGRESS.levels[lv].best||0;
+    const card = el('button','level-card '+meta.cls);
+    const starStr = '★'.repeat(Math.round(best/10*5)).padEnd(5,'☆');
+    card.innerHTML = `
+      <div class="num">${lv}</div>
+      <div class="body">
+        <div class="ttl">${meta.emoji} ${meta.title}</div>
+        <div class="sub">${meta.sub}</div>
+        <div class="stars">${best>0? starStr+`　(${best}/10)` : '未挑戦'}</div>
+      </div>
+      <div class="go">›</div>`;
+    card.onclick=()=>{ ensureAudio(); playTap(); startLevel(lv); };
+    app.appendChild(card);
+  });
+
+  const footer = el('footer','credit','考え方ラボ ｜ ならべ方と組み合わせをたいけんしながら学ぼう');
+  app.appendChild(footer);
+}
+
+function startLevel(lv){
+  STATE.screen='question'; STATE.level=lv; STATE.idx=0; STATE.sessionCorrect=0;
+  STATE.answered=false; STATE.lastCorrect=null; STATE.answerBuffer=''; STATE.answered2=false;
+  STATE.activeQuestions = generateLevelSet(lv);
+  render();
+}
+
+/* ---------- QUESTION ---------- */
+function renderQuestion(){
+  const q = currentQuestion();
+  const total = QUESTIONS_PER_LEVEL;
+  const meta = LEVEL_META[STATE.level];
+  app.innerHTML='';
+
+  const header = el('div','q-header');
+  const back = el('button','back-btn','←');
+  back.onclick=()=>{ if(confirm('ホームにもどりますか？（このレベルの記録は保存されません）')){ STATE.screen='home'; render(); } };
+  header.appendChild(back);
+  const pw = el('div','progress-wrap');
+  pw.innerHTML = `<div class="progress-track"><div class="progress-fill" style="width:${(STATE.idx)/total*100}%"></div></div>
+    <div class="progress-txt">${meta.emoji} ${meta.title}　${STATE.idx+1} / ${total}</div>`;
+  header.appendChild(pw);
+  app.appendChild(header);
+
+  const card = el('div','q-card');
+  card.innerHTML = `<div class="q-eyebrow">もんだい ${STATE.idx+1}</div><div class="q-text" id="qtext">${q.text}</div>`;
+
+  const jrow = el('div','judge-row');
+  const arrBtn = el('button','judge-btn arrange', `<span class="em">🧵</span>ならべ方<span class="sm">じゅんばん あり</span>`);
+  const comBtn = el('button','judge-btn combo', `<span class="em">🧺</span>組み合わせ<span class="sm">じゅんばん なし</span>`);
+  arrBtn.onclick=()=>handleJudge('arrange', arrBtn, comBtn);
+  comBtn.onclick=()=>handleJudge('combo', arrBtn, comBtn);
+  jrow.appendChild(arrBtn); jrow.appendChild(comBtn);
+  card.appendChild(jrow);
+
+  const feedbackHost = el('div',''); feedbackHost.id='feedbackHost';
+  card.appendChild(feedbackHost);
+
+  app.appendChild(card);
+
+  const labHost = el('div',''); labHost.id='labHost';
+  app.appendChild(labHost);
+}
+
+function handleJudge(choice, arrBtn, comBtn){
+  if(STATE.answered) return;
+  ensureAudio();
+  const q = currentQuestion();
+  const correct = choice===q.type;
+  STATE.answered = true; STATE.lastCorrect = correct;
+  if(correct && STATE.level!==3) STATE.sessionCorrect++;
+
+  arrBtn.setAttribute('disabled',''); comBtn.setAttribute('disabled','');
+  const chosenBtn = choice==='arrange'?arrBtn:comBtn;
+  chosenBtn.classList.add('chosen', correct?'right':'wrong');
+  if(!correct){ (q.type==='arrange'?arrBtn:comBtn).classList.add('reveal-correct'); }
+
+  if(correct) playCorrect(); else playWrong();
+
+  // reveal highlight in text, color-coded by type: blue=じゅんばんあり, pink=じゅんばんなし
+  if(q.highlight && q.highlight.length){
+    const qt = document.getElementById('qtext');
+    let html = q.text;
+    const markClass = 'ev '+(q.type==='arrange'?'ev-arrange':'ev-combo');
+    q.highlight.forEach(w=>{ if(html.indexOf(w)!==-1){ html = html.replace(w, `<mark class="${markClass}">${w}</mark>`); } });
+    qt.innerHTML = html;
+  }
+
+  const host = document.getElementById('feedbackHost');
+  host.innerHTML='';
+  const fb = el('div','feedback '+(correct?'ok':'ng'));
+  fb.innerHTML = `<div class="stamp">${correct?'⭕ せいかい！':'💡 おしい！ でも大丈夫'}</div>${q.reason? q.reason : ''}`;
+  host.appendChild(fb);
+
+  // common-mistake panel (② よくあるまちがい／なぜ間違えやすいか)
+  if(q.trap){
+    const trapBox = el('div','feedback trap');
+    trapBox.innerHTML = `<div class="stamp">🔍 ${correct? 'こんなかんちがいに気をつけて':'よくあるかんちがい（今回はこれかも！）'}</div>${q.trap}`;
+    host.appendChild(trapBox);
+  }
+
+  if(STATE.level===1){
+    const metaWrap = el('div','meta-row');
+    metaWrap.innerHTML = `<div class="meta-label">どこで判断した？（タップしてふりかえろう）</div>`;
+    const chipRow = el('div','row');
+    ["ことば（並ぶ／選ぶ など）に注目した","じゅんい・役わりに注目した","なんとなく、そう思った"].forEach(opt=>{
+      const chip = el('button','meta-chip', opt);
+      chip.onclick=()=>{
+        [...chipRow.children].forEach(c=>c.classList.remove('picked'));
+        chip.classList.add('picked'); playTap();
+      };
+      chipRow.appendChild(chip);
+    });
+    metaWrap.appendChild(chipRow);
+    host.appendChild(metaWrap);
+
+    const nextBtn = el('button','btn-primary', STATE.idx+1<QUESTIONS_PER_LEVEL? 'つぎのもんだいへ':'けっかを見る');
+    nextBtn.onclick=goNext;
+    host.appendChild(nextBtn);
+  } else if(STATE.level===2){
+    openLevel2Lab(q, correct);
+  } else if(STATE.level===3){
+    openLevel3Answer(q);
+  }
+}
+
+function goNext(){
+  const total = QUESTIONS_PER_LEVEL;
+  if(STATE.idx+1 < total){
+    STATE.idx++; STATE.answered=false; STATE.lastCorrect=null; STATE.answerBuffer=''; STATE.answered2=false; STATE.l3checked=false;
+    render();
+  } else {
+    finishLevel();
+  }
+}
+
+function finishLevel(){
+  const total = QUESTIONS_PER_LEVEL;
+  const prevBest = PROGRESS.levels[STATE.level].best||0;
+  if(STATE.sessionCorrect > prevBest){ PROGRESS.levels[STATE.level].best = STATE.sessionCorrect; saveProgress(); }
+  STATE.screen='result';
+  render();
+}
+
+/* ---------- LEVEL 2 lab (interactive tree / combo grid / special hints) ---------- */
+function openLevel2Lab(q, judgeCorrect){
+  const host = document.getElementById('labHost');
+  host.innerHTML='';
+  const wrap = el('div','lab-card');
+  wrap.innerHTML = `<div class="lab-title">🔬 たいけんラボ：じっさいに手を動かしてたしかめよう</div>`;
+  const inner = el('div',''); inner.id='labInner';
+  wrap.appendChild(inner);
+  host.appendChild(wrap);
+
+  if(q.special){
+    startHintReveal(q, inner, ()=>{
+      const nextBtn = el('button','btn-primary', STATE.idx+1<QUESTIONS_PER_LEVEL? 'つぎのもんだいへ':'けっかを見る');
+      nextBtn.onclick=goNext;
+      inner.appendChild(nextBtn);
+    });
+  } else if(q.type==='arrange'){
+    startArrangeEngine(q, inner);
+  } else {
+    startComboEngine(q, inner);
+  }
+}
+
+function startHintReveal(q, container, onFinished){
+  let step = 0;
+  function render(){
+    container.innerHTML='';
+    const stepsHost = el('div','hint-steps');
+    for(let i=0;i<step;i++){ const s = el('div','hint-step', `<b>ステップ${i+1}：</b> ${q.hintSteps[i]}`); stepsHost.appendChild(s); }
+    container.appendChild(stepsHost);
+    if(step < q.hintSteps.length){
+      const btn = el('button','btn-primary', step===0? 'ヒントを見る':'つぎのヒント');
+      btn.onclick=()=>{ playTap(); step++; render(); };
+      container.appendChild(btn);
+    } else {
+      playCorrect();
+      const total = el('div','expr-reveal', `答え：${q.ans}通り`);
+      container.appendChild(total);
+      onFinished();
+    }
+  }
+  render();
+}
+
+function startArrangeEngine(q, container){
+  // Persistent tree: every node, once tapped open, keeps its children forever.
+  // Nothing is collapsed or replaced by a "×n" shortcut — the student opens
+  // every branch by hand until the whole tree (every leaf) is visible.
+  const baseEntities = q.entities;
+  const k = q.k;
+  const repeat = !!q.repeat;
+  const fixedFirst = q.fixedFirst || null;
+
+  function poolFor(usedPath){
+    if(repeat) return baseEntities.slice();
+    return baseEntities.filter(e=>!usedPath.includes(e));
+  }
+  function makeNode(label, usedPath){
+    return {label, usedPath, isLeaf: usedPath.length>=k, expanded:false, children:null};
+  }
+  function isFullyOpen(node){
+    if(node.isLeaf) return true;
+    if(!node.expanded || !node.children) return false;
+    return node.children.every(isFullyOpen);
+  }
+  function countLeaves(node){
+    if(node.isLeaf) return 1;
+    if(!node.children) return 0;
+    return node.children.reduce((s,c)=>s+countLeaves(c),0);
+  }
+
+  const topNodes = baseEntities.map(item=>makeNode(item,[item]));
+
+  function renderNodeLi(node, ul){
+    const li = document.createElement('li');
+    const cls = node.isLeaf ? 'tree-node-box leaf' : (node.expanded ? 'tree-node-box picked' : 'tree-node-box pick-leaf');
+    const box = el('div', cls, node.label);
+    if(!node.isLeaf && !node.expanded){
+      box.onclick=()=>{
+        playTap();
+        node.expanded = true;
+        node.children = poolFor(node.usedPath).map(item=>makeNode(item, node.usedPath.concat([item])));
+        render();
+      };
+    }
+    li.appendChild(box);
+    if(node.expanded && node.children && node.children.length){
+      const childUl = el('ul','lvl nested');
+      node.children.forEach(c=>renderNodeLi(c, childUl));
+      li.appendChild(childUl);
+    }
+    ul.appendChild(li);
+  }
+
+  function render(){
+    container.innerHTML = '';
+    const allOpen = topNodes.every(isFullyOpen);
+    container.appendChild(el('p','pool-label', allOpen
+      ? 'ぜんぶの枝がひらいたね！これが樹形図の全体だよ。'
+      : '点線の箱をタップして、枝を1つずつひらこう。ひらいた枝はずっと残るよ。'));
+
+    const wrap = el('div','tree-wrap');
+    const tree = el('div','tree');
+    tree.appendChild(el('div','tree-root-dot'));
+
+    if(fixedFirst){
+      const outerUl = el('ul','lvl nested');
+      const fixedLi = document.createElement('li');
+      const fixedBox = el('div','tree-node-box picked', fixedFirst);
+      fixedBox.appendChild(el('span','badge','固定'));
+      fixedLi.appendChild(fixedBox);
+      const innerUl = el('ul','lvl nested');
+      topNodes.forEach(n=>renderNodeLi(n, innerUl));
+      fixedLi.appendChild(innerUl);
+      outerUl.appendChild(fixedLi);
+      tree.appendChild(outerUl);
+    } else {
+      const rootUl = el('ul','lvl nested');
+      topNodes.forEach(n=>renderNodeLi(n, rootUl));
+      tree.appendChild(rootUl);
+    }
+    wrap.appendChild(tree);
+    container.appendChild(wrap);
+
+    if(allOpen){
+      const parts = topNodes.map(countLeaves);
+      let total = parts.reduce((a,b)=>a+b,0);
+      container.appendChild(el('div','omake-label','（おまけ）しきで表すと…'));
+      container.appendChild(el('div','expr-reveal minor', `${parts.join(' + ')} = ${total}通り`));
+      if(q.postMultiply){
+        const grand = total*q.postMultiply.factor;
+        container.appendChild(el('p','pool-label', q.postMultiply.label||''));
+        container.appendChild(el('div','expr-reveal minor', `${total} × ${q.postMultiply.factor} = <u>${grand}通り</u>`));
+        total = grand;
+      }
+      playClear();
+      const nextBtn = el('button','btn-primary', STATE.idx+1<QUESTIONS_PER_LEVEL? 'つぎのもんだいへ':'けっかを見る');
+      nextBtn.onclick=goNext;
+      container.appendChild(nextBtn);
+    }
+  }
+  render();
+}
+
+function startComboEngine(q, container){
+  // Same persistent philosophy: every root stays on screen once opened, and
+  // its partners (the entities that come after it, so no pair is double
+  // counted) are shown in full — nothing collapses into a shortcut.
+  const entities = q.entities;
+  const rootsCount = entities.length-1; // the last entity has no "later" partner
+  const opened = new Array(rootsCount).fill(false);
+
+  function render(){
+    container.innerHTML='';
+    const allOpen = opened.every(Boolean);
+    container.appendChild(el('p','pool-label', allOpen
+      ? 'ぜんぶの相手が見つかったね！'
+      : 'タップして、それぞれの相手をぜんぶ見つけよう（同じ組は2回数えないよ）'));
+
+    const wrap = el('div','tree-wrap');
+    const tree = el('div','tree');
+    tree.appendChild(el('div','tree-root-dot'));
+    const rootUl = el('ul','lvl nested');
+    for(let i=0;i<rootsCount;i++){
+      const li = document.createElement('li');
+      const isOpen = opened[i];
+      const box = el('div','tree-node-box '+(isOpen?'picked':'pick-leaf'), entities[i]);
+      if(!isOpen){ box.onclick=()=>{ playTap(); opened[i]=true; render(); }; }
+      li.appendChild(box);
+      if(isOpen){
+        const childUl = el('ul','lvl nested');
+        entities.slice(i+1).forEach(p=>{
+          const cli = document.createElement('li');
+          cli.appendChild(el('div','tree-node-box leaf', p));
+          childUl.appendChild(cli);
+        });
+        li.appendChild(childUl);
+      }
+      rootUl.appendChild(li);
+    }
+    tree.appendChild(rootUl);
+    wrap.appendChild(tree);
+    container.appendChild(wrap);
+
+    if(allOpen){
+      const counts = []; for(let i=0;i<rootsCount;i++) counts.push(entities.length-1-i);
+      const total = counts.reduce((a,b)=>a+b,0);
+      container.appendChild(el('div','omake-label','（おまけ）しきで表すと…'));
+      container.appendChild(el('div','expr-reveal minor', `${counts.join(' + ')} = ${total}通り`));
+      playClear();
+      const nextBtn = el('button','btn-primary', STATE.idx+1<QUESTIONS_PER_LEVEL? 'つぎのもんだいへ':'けっかを見る');
+      nextBtn.onclick=goNext;
+      container.appendChild(nextBtn);
+    }
+  }
+  render();
+}
+
+/* ---------- LEVEL 3 answer input ---------- */
+function openLevel3Answer(q){
+  const host = document.getElementById('labHost');
+  host.innerHTML='';
+  const wrap = el('div','lab-card');
+  wrap.innerHTML = `<div class="lab-title">✏️ 式にして、答えを入力しよう</div>`;
+  const inner = el('div',''); inner.id='l3inner';
+  wrap.appendChild(inner);
+  host.appendChild(wrap);
+
+  STATE.answerBuffer='';
+  STATE.l3checked=false;
+
+  function renderInner(){
+    inner.innerHTML='';
+
+    if(q.special){
+      const hbtn = el('button','btn-ghost','💡 かんがえ方のヒントを見る');
+      let shown=false;
+      hbtn.onclick=()=>{
+        shown=!shown;
+        hintBox.style.display = shown?'block':'none';
+        hbtn.textContent = shown? '💡 ヒントをとじる':'💡 かんがえ方のヒントを見る';
+        playTap();
+      };
+      inner.appendChild(hbtn);
+      const hintBox = el('div','hint-steps');
+      hintBox.style.display='none';
+      q.hintSteps.forEach((h,i)=>hintBox.appendChild(el('div','hint-step', `<b>ステップ${i+1}：</b> ${h}`)));
+      inner.appendChild(hintBox);
+    } else {
+      const hbtn = el('button','btn-ghost','💡 しきのヒントを見る');
+      let shown=false;
+      hbtn.onclick=()=>{
+        shown=!shown;
+        exprBox.style.display = shown?'block':'none';
+        hbtn.textContent = shown? '💡 ヒントをとじる':'💡 しきのヒントを見る';
+        playTap();
+      };
+      inner.appendChild(hbtn);
+      const exprBox = el('div','hint-step', q.expr);
+      exprBox.style.display='none';
+      exprBox.style.textAlign='center'; exprBox.style.fontSize='17px'; exprBox.style.fontWeight='700'; exprBox.style.color='var(--arrange-deep)';
+      inner.appendChild(exprBox);
+    }
+
+    const disp = el('div','answer-display', `<span>${STATE.answerBuffer||'　'}</span><span class="unit">通り</span>`);
+    inner.appendChild(disp);
+
+    const pad = el('div','numpad');
+    ['1','2','3','4','5','6','7','8','9'].forEach(n=>{
+      const b = el('button','num-btn', n);
+      b.onclick=()=>{ if(STATE.answerBuffer.length<3){ STATE.answerBuffer+=n; playTap(); renderInner(); } };
+      pad.appendChild(b);
+    });
+    const clearBtn = el('button','num-btn wide','けす');
+    clearBtn.onclick=()=>{ STATE.answerBuffer = STATE.answerBuffer.slice(0,-1); playTap(); renderInner(); };
+    pad.appendChild(clearBtn);
+    const zeroBtn = el('button','num-btn','0');
+    zeroBtn.onclick=()=>{ if(STATE.answerBuffer.length<3){ STATE.answerBuffer+='0'; playTap(); renderInner(); } };
+    pad.appendChild(zeroBtn);
+    const okBtn = el('button','num-btn confirm','けってい');
+    okBtn.onclick=()=>checkAnswer(q);
+    pad.appendChild(okBtn);
+    inner.appendChild(pad);
+
+    if(STATE.l3checked){
+      const fb = el('div','feedback '+(STATE.l3right?'ok':'ng'));
+      fb.innerHTML = STATE.l3right? '⭕ せいかい！式もばっちりだね。' : `💡 おしい！ 正しい答えは <b>${q.ans}通り</b> だよ。`;
+      inner.appendChild(fb);
+      const nextBtn = el('button','btn-primary', STATE.idx+1<QUESTIONS_PER_LEVEL? 'つぎのもんだいへ':'けっかを見る');
+      nextBtn.onclick=goNext;
+      inner.appendChild(nextBtn);
+    }
+  }
+
+  function checkAnswer(q){
+    if(STATE.l3checked) return;
+    const val = parseInt(STATE.answerBuffer,10);
+    STATE.l3checked = true;
+    STATE.l3right = (val===q.ans);
+    if(STATE.l3right){ if(!STATE.answered2){ STATE.sessionCorrect++; STATE.answered2=true; } playCorrect(); }
+    else playWrong();
+    renderInner();
+  }
+
+  renderInner();
+}
+
+/* ---------- RESULT ---------- */
+function renderResult(){
+  const total = QUESTIONS_PER_LEVEL;
+  const meta = LEVEL_META[STATE.level];
+  const score = STATE.sessionCorrect;
+  const isBest = score >= (PROGRESS.levels[STATE.level].best||0);
+  app.innerHTML='';
+
+  const card = el('div','result-card');
+  const emoji = score===total? '🏆' : score>=total*0.7? '🎉' : '🌱';
+  card.innerHTML = `
+    <div class="result-em">${emoji}</div>
+    <div class="result-title">${meta.title}　クリア！</div>
+    <div class="result-sub">${score} / ${total} もん せいかい</div>
+    <div class="result-stars">${'★'.repeat(Math.round(score/total*5)).padEnd(5,'☆')}</div>
+    ${isBest && score>0 ? `<div class="badge-pill">✨ 自己ベスト更新！</div>` : ''}
+  `;
+  const homeBtn = el('button','btn-primary','ホームへもどる');
+  homeBtn.onclick=()=>{ STATE.screen='home'; render(); };
+  const retryBtn = el('button','btn-ghost','もういちど挑戦する');
+  retryBtn.onclick=()=>startLevel(STATE.level);
+  card.appendChild(homeBtn); card.appendChild(retryBtn);
+  app.appendChild(card);
+
+  if(score>0){ fireConfetti(score===total? 70:40); playClear(); }
+}
+
+/* ---------- init ---------- */
+render();
+</script>
+</body>
+</html>
